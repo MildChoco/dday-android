@@ -12,7 +12,7 @@
 - **시간**: 특정 시각까지 남은 시간 (`52시간 14분`), 상세 화면은 초 단위로 줄어든다. 매일 반복(퇴근 시간 등) 가능.
 - 카드 색 6가지(핑크·라벤더·민트·하늘·레몬·피치), 홈에서 카테고리별 필터
 
-디자인 시안: https://claude.ai/artifact/7VefAz9UBS7bcWxhW6VamP
+디자인 시안: [docs/design/mockup.html](docs/design/mockup.html). 내려받아 브라우저로 열면 홈, 새로 만들기, 기념일·시간 상세, 컬러 시트를 볼 수 있다. GitHub 화면에서는 HTML 소스로 보인다.
 
 ## 화면
 
@@ -52,4 +52,6 @@ adb install -r app\build\outputs\apk\release\app-release.apk
 
 버전: AGP 9.4.1, Kotlin 2.4.21(AGP 내장), Gradle 9.8.1, Compose BOM 2026.09.00, minSdk 26.
 
-숫자 글꼴 Nunito는 SIL Open Font License 1.1을 따른다. 전문은 [licenses/Nunito-OFL.txt](licenses/Nunito-OFL.txt).
+## 라이선스
+
+[MIT](LICENSE). 단, 숫자 글꼴 Nunito(`app/src/main/res/font/nunito_extrabold.ttf`)는 SIL Open Font License 1.1을 따른다. 전문은 [licenses/Nunito-OFL.txt](licenses/Nunito-OFL.txt).

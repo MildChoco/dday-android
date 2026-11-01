@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>디데이 앱 디자인 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #2B2B33;
+  --gray: #6B6B78;
+  --sub: #5E5E6B;
+  --label: #4A4A55;
+  --line: #ECECF2;
+  --divider: #F0F0F5;
+  --chip: #F3F3F7;
+  --field: #FAFAFC;
+  --field-border: #E6E6EE;
+  --track: #D9D9E3;
+  --placeholder: #9A9AA6;
+  --canvas: #F2F2F6;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--canvas); font-family: 'Noto Sans KR', sans-serif; color: var(--ink); }
+button, input { font-family: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+p, h1, h2 { margin: 0; }
+.num { font-family: Nunito, sans-serif; font-weight: 800; }
+
+.page { max-width: 2240px; margin: 0 auto; padding: 48px 32px 80px; }
+.page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+.page-lead { margin: 8px 0 40px; font-size: 14px; color: var(--gray); }
+.boards { display: flex; flex-wrap: wrap; gap: 48px 40px; }
+.board { display: flex; flex-direction: column; gap: 12px; }
+.board-name { font-size: 14px; font-weight: 700; color: var(--label); }
+.frame {
+  width: 390px; height: 844px; flex-shrink: 0; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; background: #FFFFFF; border-radius: 32px;
+  box-shadow: 0 12px 40px rgba(43, 43, 51, 0.10);
+}
+
+/* 공통 */
+.icon-btn { width: 44px; height: 44px; border-radius: 22px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 24px 12px 8px 8px; }
+.text-btn { height: 44px; padding: 0 12px; display: flex; align-items: center; font-size: 15px; font-weight: 500; color: var(--label); }
+.tag { flex-shrink: 0; align-self: flex-start; font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.8); padding: 3px 8px; border-radius: 999px; }
+.label { font-size: 13px; font-weight: 700; color: var(--label); }
+
+/* 카드 */
+.card { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-radius: 22px; }
+a.card { cursor: pointer; }
+.card-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1; }
+.card-title { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-meta { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.card-meta .tag { align-self: center; }
+.sub { font-size: 13px; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.value { display: flex; align-items: baseline; flex-shrink: 0; }
+.value .n { font-family: Nunito, sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+.value .u { font-size: 13px; font-weight: 700; margin: 0 4px 0 2px; }
+.value .u:last-child { margin-right: 0; }
+
+/* 홈 */
+.home-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 40px 20px 20px; }
+.home-date { font-size: 13px; font-weight: 500; color: var(--gray); }
+.home-title { margin-top: 4px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+.add-btn { width: 48px; height: 48px; border-radius: 24px; background: var(--ink); color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.chips { display: flex; gap: 8px; padding: 0 20px 18px; }
+.chip { height: 44px; padding: 0 16px; border: none; border-radius: 22px; background: var(--chip); color: var(--label); font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.chip.on { background: var(--ink); color: #FFFFFF; }
+.chip-count { font-family: Nunito, sans-serif; font-size: 13px; font-weight: 800; opacity: 0.75; }
+.list { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 0 20px 24px; overflow: hidden; }
+
+/* 새로 만들기 */
+.add-top { display: flex; align-items: center; justify-content: space-between; padding: 24px 16px 8px 8px; }
+.add-top h2 { font-size: 17px; font-weight: 700; }
+.save-btn { height: 44px; padding: 0 20px; border-radius: 22px; background: var(--ink); color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; align-items: center; }
+.add-body { display: flex; flex-direction: column; gap: 22px; padding: 12px 20px 32px; }
+.add-rest { display: flex; flex-direction: column; gap: 22px; }
+.cats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.cat { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 84px; padding: 14px 12px; border-radius: 18px; border: 2px solid var(--line); background: #FFFFFF; text-align: left; cursor: pointer; }
+.cat-name { font-size: 15px; font-weight: 700; }
+.cat-desc { font-size: 12px; line-height: 1.4; color: var(--sub); }
+.group { display: flex; flex-direction: column; gap: 8px; }
+.field { height: 52px; width: 100%; border-radius: 14px; border: 1.5px solid var(--field-border); background: var(--field); padding: 0 16px; font-size: 16px; outline: none; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left; }
+input.field { cursor: text; }
+input.field::placeholder { color: var(--placeholder); }
+.hint { font-size: 12px; color: var(--gray); }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 56px; padding: 0; border: none; background: transparent; text-align: left; cursor: pointer; }
+.toggle-text { display: flex; flex-direction: column; gap: 2px; }
+.toggle-title { font-size: 15px; font-weight: 500; }
+.toggle-desc { font-size: 12px; color: var(--gray); }
+.switch { width: 52px; height: 32px; flex-shrink: 0; border-radius: 16px; padding: 3px; display: flex; transition: background 0.15s; }
+.knob { width: 26px; height: 26px; border-radius: 13px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+.segment { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; background: var(--chip); }
+.seg { min-height: 56px; border: none; border-radius: 12px; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
+.seg.on { background: #FFFFFF; box-shadow: 0 1px 4px rgba(43, 43, 51, 0.12); }
+.seg-name { font-size: 14px; font-weight: 700; }
+.seg-desc { font-size: 11px; color: var(--sub); }
+.swatches { display: flex; gap: 10px; }
+.swatch { width: 44px; height: 44px; padding: 3px; border-radius: 22px; border: 2px solid transparent; background: #FFFFFF; cursor: pointer; }
+.swatch span { display: block; width: 100%; height: 100%; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(43, 43, 51, 0.06); }
+
+/* 상세 */
+.hero { margin: 4px 20px 0; padding: 24px 22px 22px; border-radius: 28px; display: flex; flex-direction: column; gap: 6px; }
+.hero h1 { margin-top: 6px; font-size: 20px; font-weight: 700; }
+.big { display: flex; align-items: baseline; gap: 4px; }
+.big .n { font-family: Nunito, sans-serif; font-size: 68px; font-weight: 800; letter-spacing: -2px; line-height: 1.05; }
+.big .u { font-size: 22px; font-weight: 700; }
+.hero-sub { font-size: 14px; color: var(--sub); }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.tile { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.8); }
+.tile-label { font-size: 12px; color: var(--sub); }
+.tile-value { font-size: 15px; font-weight: 700; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; padding: 26px 20px 10px; }
+.section-head h2 { font-size: 17px; font-weight: 700; }
+.section-hint { font-size: 12px; color: var(--gray); }
+.timeline { display: flex; flex-direction: column; padding: 0 20px; }
+.tl-row { display: flex; gap: 12px; min-height: 52px; }
+.tl-rail { width: 16px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+.tl-line-top { width: 2px; height: 20px; }
+.tl-dot { width: 12px; height: 12px; flex-shrink: 0; border-radius: 50%; border: 2px solid; }
+.tl-line-bottom { width: 2px; flex: 1; }
+.tl-body { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 12px; margin: 2px 0; border-radius: 14px; }
+.tl-text { display: flex; flex-direction: column; gap: 1px; }
+.tl-label { font-size: 15px; font-weight: 700; }
+.tl-date { font-size: 13px; color: var(--gray); }
+.pill { font-family: Nunito, sans-serif; font-size: 14px; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+.time-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+.time-tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 16px 0 12px; border-radius: 18px; background: #FFFFFF; }
+.time-tile .n { font-family: Nunito, sans-serif; font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.time-tile .u { font-size: 12px; font-weight: 500; color: var(--sub); }
+.time-note { margin-top: 10px; font-size: 12px; color: #4A6B5E; text-align: center; }
+.info { display: flex; flex-direction: column; padding: 18px 20px 0; }
+.info-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; border-bottom: 1px solid var(--divider); }
+.info-label { font-size: 14px; color: var(--gray); }
+.info-value { font-size: 15px; font-weight: 700; text-align: right; }
+
+/* 컬러 · 타이포 */
+.palette { display: flex; flex-direction: column; gap: 26px; padding: 40px 20px 28px; }
+.palette h1 { font-size: 22px; font-weight: 700; }
+.palette section { display: flex; flex-direction: column; gap: 10px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.base { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line); }
+.base-dot { width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(43, 43, 51, 0.12); }
+.base-name { font-size: 13px; font-weight: 700; }
+.base-hex { font-size: 12px; color: var(--gray); }
+.pastel { display: flex; flex-direction: column; gap: 4px; padding: 14px 14px 12px; border-radius: 18px; }
+.pastel-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.pastel-name { font-size: 14px; font-weight: 700; }
+.pastel-hex { font-size: 11px; color: var(--sub); }
+.pastel-role { font-size: 11px; font-weight: 700; }
+.type-row { display: flex; align-items: baseline; gap: 12px; }
+.type-note { font-size: 12px; color: var(--gray); }
+
+@media (max-width: 480px) {
+  .page { padding: 32px 16px 64px; }
+  .frame { width: 100%; max-width: 390px; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <h1 class="page-title">디데이 · 기념일 · 시간 — 디자인 시안</h1>
+  <p class="page-lead">예시 숫자는 2026년 11월 1일(일) 오전 9:46 기준이다. 홈의 필터, 새로 만들기의 카테고리·스위치·색상, 시간 상세의 카운트다운은 눌러보거나 지켜볼 수 있다.</p>
+
+  <div class="boards">
+    <section class="board" id="board-home" aria-label="홈">
+      <span class="board-name">홈</span>
+      <div class="frame">
+        <header class="home-header">
+          <div>
+            <p class="home-date">11월 1일 일요일</p>
+            <h1 class="home-title">나의 디데이</h1>
+          </div>
+          <a class="add-btn" href="#board-add" aria-label="새로 만들기">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </a>
+        </header>
+        <div class="chips" id="home-chips"></div>
+        <div class="list" id="home-list"></div>
+      </div>
+    </section>
+
+    <section class="board" id="board-add" aria-label="새로 만들기">
+      <span class="board-name">새로 만들기</span>
+      <div class="frame">
+        <div class="add-top">
+          <a class="icon-btn" href="#board-home" aria-label="닫기">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </a>
+          <h2>새로 만들기</h2>
+          <a class="save-btn" href="#board-home">저장</a>
+        </div>
+        <div class="add-body">
+          <div class="cats" id="add-cats"></div>
+          <div class="group">
+            <span class="label">미리보기</span>
+            <div id="add-preview"></div>
+          </div>
+          <div class="group">
+            <label class="label" for="add-title">이름</label>
+            <input class="field" id="add-title" type="text" maxlength="40">
+          </div>
+          <div class="add-rest" id="add-rest"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="board" id="board-anniv" aria-label="기념일 상세">
+      <span class="board-name">기념일 상세</span>
+      <div class="frame">
+        <div class="topbar">
+          <a class="icon-btn" href="#board-home" aria-label="뒤로">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </a>
+          <a class="text-btn" href="#board-add">편집</a>
+        </div>
+        <div class="hero" style="background: #ECE6FF">
+          <span class="tag" style="color: #6B4FC8">기념일 · 일수</span>
+          <h1>우리 만난 날</h1>
+          <div class="big" style="color: #6B4FC8"><span class="n">519</span><span class="u">일째</span></div>
+          <p class="hero-sub">2025년 6월 1일 (일)부터</p>
+          <div class="tiles">
+            <div class="tile"><span class="tile-label">지나온 시간</span><span class="tile-value">1년 5개월</span></div>
+            <div class="tile"><span class="tile-label">다음 기념일</span><span class="tile-value">600일 · D-81</span></div>
+          </div>
+        </div>
+        <div class="section-head">
+          <h2>기념일 타임라인</h2>
+          <span class="section-hint">100일 단위 · 주년</span>
+        </div>
+        <div class="timeline" id="anniv-timeline"></div>
+      </div>
+    </section>
+
+    <section class="board" id="board-time" aria-label="시간 상세">
+      <span class="board-name">시간 상세 (실시간 카운트다운)</span>
+      <div class="frame">
+        <div class="topbar">
+          <a class="icon-btn" href="#board-home" aria-label="뒤로">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </a>
+          <a class="text-btn" href="#board-add">편집</a>
+        </div>
+        <div class="hero" style="background: #DDF5EC; padding-left: 20px; padding-right: 20px">
+          <span class="tag" style="color: #1F7A57">시간</span>
+          <h1>제주행 비행기</h1>
+          <p class="hero-sub">11월 3일 (화) 오후 2:00까지</p>
+          <div class="time-tiles" id="time-tiles"></div>
+          <p class="time-note">1초마다 줄어들어요</p>
+        </div>
+        <div class="info" id="time-info"></div>
+      </div>
+    </section>
+
+    <section class="board" id="board-palette" aria-label="컬러와 타이포">
+      <span class="board-name">컬러 · 타이포</span>
+      <div class="frame">
+        <div class="palette">
+          <h1>컬러 · 타이포</h1>
+          <section>
+            <span class="label">기본</span>
+            <div class="grid2" id="palette-base"></div>
+          </section>
+          <section>
+            <span class="label">파스텔 카드 6색</span>
+            <div class="grid2" id="palette-pastels"></div>
+          </section>
+          <section>
+            <span class="label">글꼴</span>
+            <div class="type-row"><span class="num" style="font-size: 44px; letter-spacing: -1px; line-height: 1">D-519</span><span class="type-note">숫자 · Nunito ExtraBold</span></div>
+            <div class="type-row"><span style="font-size: 18px; font-weight: 700">우리 만난 날</span><span class="type-note">제목 · Noto Sans KR Bold</span></div>
+            <div class="type-row"><span style="font-size: 14px; color: var(--sub)">2025년 6월 1일 (일)부터</span><span class="type-note">본문 · Regular</span></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+const PASTELS = {
+  pink: { name: '핑크', bg: '#FFE4EA', ink: '#B03A63', role: '디데이 기본' },
+  lavender: { name: '라벤더', bg: '#ECE6FF', ink: '#6B4FC8', role: '기념일 기본' },
+  mint: { name: '민트', bg: '#DDF5EC', ink: '#1F7A57', role: '시간 기본' },
+  sky: { name: '하늘', bg: '#DFEFFF', ink: '#2D6AA8', role: '선택 색상' },
+  butter: { name: '레몬', bg: '#FFF3C7', ink: '#8A6500', role: '선택 색상' },
+  peach: { name: '피치', bg: '#FFE7D6', ink: '#A04814', role: '선택 색상' }
+};
+const KIND_COLOR = { dday: 'pink', anniv: 'lavender', time: 'mint' };
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const valueHtml = (parts) => parts.map((p) => `<span class="n">${esc(p.n)}</span>${p.u ? `<span class="u">${esc(p.u)}</span>` : ''}`).join('');
+
+function cardHtml(item) {
+  const c = PASTELS[item.color];
+  const tag = item.href ? 'a' : 'div';
+  return `<${tag} class="card"${item.href ? ` href="${item.href}"` : ''} style="background:${c.bg}">
+    <div class="card-main">
+      <span class="card-title">${esc(item.title)}</span>
+      <div class="card-meta"><span class="tag" style="color:${c.ink}">${esc(item.cat)}</span><span class="sub">${esc(item.sub)}</span></div>
+    </div>
+    <div class="value" style="color:${c.ink}">${valueHtml(item.parts)}</div>
+  </${tag}>`;
+}
+
+// ---- 홈 ----
+const HOME_ITEMS = [
+  { type: 'time', cat: '시간', title: '퇴근', sub: '매일 오후 6:00', color: 'sky', parts: [{ n: '8', u: '시간' }, { n: '14', u: '분' }] },
+  { type: 'dday', cat: '디데이', title: '제주도 여행', sub: '2026.11.03 (화)', color: 'pink', parts: [{ n: 'D-2' }] },
+  { type: 'time', cat: '시간', title: '제주행 비행기', sub: '11.03 (화) 오후 2:00', color: 'mint', href: '#board-time', parts: [{ n: '52', u: '시간' }, { n: '14', u: '분' }] },
+  { type: 'dday', cat: '디데이', title: '자격증 시험', sub: '2026.12.12 (토)', color: 'butter', parts: [{ n: 'D-41' }] },
+  { type: 'dday', cat: '디데이', title: '크리스마스', sub: '2026.12.25 (금)', color: 'peach', parts: [{ n: 'D-54' }] },
+  { type: 'anniv', cat: '기념일', title: '엄마 생일', sub: '매년 1월 15일', color: 'pink', parts: [{ n: 'D-75' }] },
+  { type: 'anniv', cat: '기념일', title: '우리 만난 날', sub: '600일까지 D-81', color: 'lavender', href: '#board-anniv', parts: [{ n: '519', u: '일' }] }
+];
+let homeFilter = 'all';
+
+function renderHome() {
+  const tabs = [['all', '전체'], ['dday', '디데이'], ['anniv', '기념일'], ['time', '시간']];
+  document.getElementById('home-chips').innerHTML = tabs.map(([id, label]) => {
+    const on = id === homeFilter;
+    const count = id === 'all' ? HOME_ITEMS.length : HOME_ITEMS.filter((x) => x.type === id).length;
+    return `<button type="button" class="chip${on ? ' on' : ''}" aria-pressed="${on}" data-filter="${id}"><span>${label}</span><span class="chip-count">${count}</span></button>`;
+  }).join('');
+  document.getElementById('home-list').innerHTML = HOME_ITEMS
+    .filter((x) => homeFilter === 'all' || x.type === homeFilter)
+    .map(cardHtml)
+    .join('');
+}
+document.getElementById('home-chips').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-filter]');
+  if (b) { homeFilter = b.dataset.filter; renderHome(); }
+});
+
+// ---- 새로 만들기 ----
+const add = { cat: 'dday', mode: 'count', startOne: true, daily: false, color: null, title: '' };
+const CATS = [
+  { id: 'dday', label: '디데이', desc: '그날까지 남은 날' },
+  { id: 'anniv', label: '기념일', desc: '지난 날 세기 · 매년 반복' },
+  { id: 'time', label: '시간', desc: '남은 시간 카운트다운' }
+];
+const ICON_CAL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B6B78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+const ICON_CLOCK = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B6B78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
+
+function addState() {
+  const isAnniv = add.cat === 'anniv';
+  const isTime = add.cat === 'time';
+  const isCount = isAnniv && add.mode === 'count';
+  const isYearly = isAnniv && add.mode === 'yearly';
+  const pal = PASTELS[add.color || KIND_COLOR[add.cat]];
+  let s = { placeholder: '예: 여행 가는 날', dateLabel: '날짜', dateValue: '2026년 11월 20일 (금)', hint: '',
+    preview: { cat: '디데이', sub: '2026.11.20 (금)', parts: [{ n: 'D-19' }] } };
+  if (isCount) {
+    s = { placeholder: '예: 우리 만난 날', dateLabel: '시작한 날', dateValue: '2025년 6월 1일 (일)', hint: '',
+      preview: { cat: '기념일', sub: add.startOne ? '600일까지 D-81' : '600일까지 D-82', parts: [{ n: add.startOne ? '519' : '518', u: '일' }] } };
+  } else if (isYearly) {
+    s = { placeholder: '예: 엄마 생일', dateLabel: '기념일 날짜', dateValue: '2026년 1월 15일 (목)', hint: '매년 1월 15일이 다가오면 다시 세요',
+      preview: { cat: '기념일', sub: '매년 1월 15일', parts: [{ n: 'D-75' }] } };
+  } else if (isTime) {
+    s = { placeholder: '예: 비행기 출발', dateLabel: '날짜', dateValue: '2026년 11월 3일 (화)', hint: '',
+      preview: add.daily
+        ? { cat: '시간', sub: '매일 오후 2:00', parts: [{ n: '4', u: '시간' }, { n: '14', u: '분' }] }
+        : { cat: '시간', sub: '11.03 (화) 오후 2:00', parts: [{ n: '52', u: '시간' }, { n: '14', u: '분' }] } };
+  }
+  return { ...s, pal, isAnniv, isTime, isCount, showDate: !(isTime && add.daily) };
+}
+
+function toggleHtml(action, title, desc, on, pal) {
+  return `<button type="button" class="toggle-row" role="switch" aria-checked="${on}" data-action="${action}">
+    <span class="toggle-text"><span class="toggle-title">${title}</span><span class="toggle-desc">${desc}</span></span>
+    <span class="switch" style="background:${on ? pal.ink : 'var(--track)'};justify-content:${on ? 'flex-end' : 'flex-start'}"><span class="knob"></span></span>
+  </button>`;
+}
+
+function renderPreview(st) {
+  const title = add.title.trim() || st.placeholder.replace('예: ', '');
+  document.getElementById('add-preview').innerHTML = cardHtml({ ...st.preview, title, color: add.color || KIND_COLOR[add.cat] });
+}
+
+function renderAdd() {
+  const st = addState();
+  document.getElementById('add-cats').innerHTML = CATS.map((c) => {
+    const on = c.id === add.cat;
+    const cp = PASTELS[KIND_COLOR[c.id]];
+    return `<button type="button" class="cat" aria-pressed="${on}" data-cat="${c.id}" style="${on ? `background:${cp.bg};border-color:${cp.ink}` : ''}">
+      <span class="cat-name">${c.label}</span><span class="cat-desc">${c.desc}</span></button>`;
+  }).join('');
+  renderPreview(st);
+  document.getElementById('add-title').placeholder = st.placeholder;
+
+  let html = '';
+  if (st.showDate) {
+    html += `<div class="group"><span class="label">${st.dateLabel}</span>
+      <button type="button" class="field"><span>${st.dateValue}</span>${ICON_CAL}</button>
+      ${st.hint ? `<span class="hint">${st.hint}</span>` : ''}</div>`;
+  }
+  if (st.isTime) {
+    html += `<div class="group"><span class="label">시각</span>
+      <button type="button" class="field"><span>오후 2:00</span>${ICON_CLOCK}</button></div>`;
+    html += toggleHtml('daily', '매일 반복', '퇴근 · 마감처럼 매일 같은 시각까지', add.daily, st.pal);
+  }
+  if (st.isAnniv) {
+    const modes = [['count', '일수로 세기', '100일 · 1000일'], ['yearly', '매년 반복', '생일 · 결혼기념일']];
+    html += `<div class="group"><span class="label">세는 방식</span><div class="segment">${modes.map(([id, name, desc]) =>
+      `<button type="button" class="seg${add.mode === id ? ' on' : ''}" aria-pressed="${add.mode === id}" data-mode="${id}"><span class="seg-name">${name}</span><span class="seg-desc">${desc}</span></button>`
+    ).join('')}</div></div>`;
+    if (st.isCount) html += toggleHtml('startOne', '시작한 날을 1일로 세기', '연애 기념일처럼 첫날부터 1일', add.startOne, st.pal);
+  }
+  const current = add.color || KIND_COLOR[add.cat];
+  html += `<div class="group"><span class="label">색상</span><div class="swatches">${Object.entries(PASTELS).map(([id, p]) =>
+    `<button type="button" class="swatch" aria-pressed="${id === current}" aria-label="${p.name}" data-color="${id}" style="border-color:${id === current ? p.ink : 'transparent'}"><span style="background:${p.bg}"></span></button>`
+  ).join('')}</div></div>`;
+  document.getElementById('add-rest').innerHTML = html;
+}
+
+document.getElementById('board-add').addEventListener('click', (e) => {
+  const t = e.target.closest('[data-cat],[data-mode],[data-action],[data-color]');
+  if (!t) return;
+  if (t.dataset.cat) { add.cat = t.dataset.cat; add.color = null; }
+  if (t.dataset.mode) add.mode = t.dataset.mode;
+  if (t.dataset.color) add.color = t.dataset.color;
+  if (t.dataset.action === 'daily') add.daily = !add.daily;
+  if (t.dataset.action === 'startOne') add.startOne = !add.startOne;
+  renderAdd();
+});
+document.getElementById('add-title').addEventListener('input', (e) => {
+  add.title = e.target.value;
+  renderPreview(addState());
+});
+
+// ---- 기념일 상세 타임라인 ----
+function renderTimeline() {
+  const INK = '#6B4FC8';
+  const SOFT = '#E4DFF5';
+  const rows = [
+    { kind: 'past', label: '400일', date: '2026.07.05 (일)', right: '지남' },
+    { kind: 'past', label: '500일', date: '2026.10.13 (화)', right: '지남' },
+    { kind: 'today', label: '오늘', date: '519일째 · 2026.11.01 (일)', right: '' },
+    { kind: 'next', label: '600일', date: '2027.01.21 (목)', right: 'D-81' },
+    { kind: 'future', label: '700일', date: '2027.05.01 (토)', right: 'D-181' },
+    { kind: 'future', label: '2주년', date: '2027.06.01 (화)', right: 'D-212' },
+    { kind: 'future', label: '800일', date: '2027.08.09 (월)', right: 'D-281' },
+    { kind: 'future', label: '900일', date: '2027.11.17 (수)', right: 'D-381' }
+  ];
+  const todayIdx = rows.findIndex((r) => r.kind === 'today');
+  document.getElementById('anniv-timeline').innerHTML = rows.map((r, i) => {
+    const past = r.kind === 'past';
+    const top = i === 0 ? 'transparent' : (i <= todayIdx ? INK : SOFT);
+    const bottom = i === rows.length - 1 ? 'transparent' : (i < todayIdx ? INK : SOFT);
+    const dotBg = past || r.kind === 'today' ? INK : '#FFFFFF';
+    const dotBorder = r.kind === 'future' ? '#CFC6EE' : INK;
+    const pillBg = r.kind === 'next' ? INK : (r.kind === 'future' ? 'var(--chip)' : 'transparent');
+    const pillFg = r.kind === 'next' ? '#FFFFFF' : (past ? 'var(--gray)' : 'var(--label)');
+    return `<div class="tl-row">
+      <div class="tl-rail"><span class="tl-line-top" style="background:${top}"></span><span class="tl-dot" style="background:${dotBg};border-color:${dotBorder}"></span><span class="tl-line-bottom" style="background:${bottom}"></span></div>
+      <div class="tl-body" style="background:${r.kind === 'today' ? '#F6F3FF' : 'transparent'}">
+        <div class="tl-text"><span class="tl-label" style="color:${past ? 'var(--gray)' : 'var(--ink)'}">${r.label}</span><span class="tl-date">${r.date}</span></div>
+        ${r.right ? `<span class="pill" style="background:${pillBg};color:${pillFg}">${r.right}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- 시간 상세: 52시간 14분 8초에서 1초씩 줄어든다 ----
+let remaining = 52 * 3600 + 14 * 60 + 8;
+function renderTime() {
+  const t = remaining;
+  const pad = (n) => String(n).padStart(2, '0');
+  const h = Math.floor(t / 3600);
+  const m = Math.floor((t % 3600) / 60);
+  const s = t % 60;
+  const d = Math.floor(t / 86400);
+  const hd = Math.floor((t % 86400) / 3600);
+  document.getElementById('time-tiles').innerHTML = [[String(h), '시간'], [pad(m), '분'], [pad(s), '초']]
+    .map(([n, u]) => `<div class="time-tile"><span class="n" style="color:#1F7A57">${n}</span><span class="u">${u}</span></div>`).join('');
+  const info = [
+    ['디데이', 'D-2'],
+    ['일 · 시간으로', `${d}일 ${hd}시간 ${m}분`],
+    ['분으로', `${Math.floor(t / 60).toLocaleString('ko-KR')}분`],
+    ['목표 시각', '2026.11.03 (화) 오후 2:00'],
+    ['반복', '안 함']
+  ];
+  document.getElementById('time-info').innerHTML = info
+    .map(([l, v]) => `<div class="info-row"><span class="info-label">${l}</span><span class="info-value">${v}</span></div>`).join('');
+}
+setInterval(() => { if (remaining > 0) { remaining -= 1; renderTime(); } }, 1000);
+
+// ---- 컬러 · 타이포 ----
+function renderPalette() {
+  const base = [['배경', '#FFFFFF'], ['글자', '#2B2B33'], ['보조 글자', '#6B6B78'], ['입력칸', '#FAFAFC']];
+  document.getElementById('palette-base').innerHTML = base.map(([name, hex]) =>
+    `<div class="base"><span class="base-dot" style="background:${hex}"></span><span><span class="base-name" style="display:block">${name}</span><span class="base-hex">${hex}</span></span></div>`
+  ).join('');
+  document.getElementById('palette-pastels').innerHTML = Object.values(PASTELS).map((p) =>
+    `<div class="pastel" style="background:${p.bg}">
+      <div class="pastel-top"><span class="pastel-name">${p.name}</span><span class="num" style="font-size:22px;color:${p.ink}">D-19</span></div>
+      <span class="pastel-hex">${p.bg} / ${p.ink}</span>
+      <span class="pastel-role" style="color:${p.ink}">${p.role}</span>
+    </div>`
+  ).join('');
+}
+
+renderHome();
+renderAdd();
+renderTimeline();
+renderTime();
+renderPalette();
+</script>
+</body>
+</html>

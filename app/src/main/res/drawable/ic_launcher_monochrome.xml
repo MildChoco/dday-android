@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 테마 아이콘(Android 13+)용 단색 윤곽 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:pathData="M40,33 H68 A10,10 0 0 1 78,43 V69 A10,10 0 0 1 68,79 H40 A10,10 0 0 1 30,69 V43 A10,10 0 0 1 40,33 Z M30,47 H78" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M43,27 A2.5,2.5 0 0 1 45.5,29.5 V36.5 A2.5,2.5 0 0 1 40.5,36.5 V29.5 A2.5,2.5 0 0 1 43,27 Z M65,27 A2.5,2.5 0 0 1 67.5,29.5 V36.5 A2.5,2.5 0 0 1 62.5,36.5 V29.5 A2.5,2.5 0 0 1 65,27 Z M60.5,69 a5.5,5.5 0 1 0 11,0 a5.5,5.5 0 1 0 -11,0 Z" />
+</vector>

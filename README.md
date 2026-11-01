@@ -52,4 +52,4 @@ adb install -r app\build\outputs\apk\release\app-release.apk
 
 버전: AGP 9.4.1, Kotlin 2.4.21(AGP 내장), Gradle 9.8.1, Compose BOM 2026.09.00, minSdk 26.
 
-숫자 글꼴 Nunito는 SIL Open Font License 1.1을 따른다.
+숫자 글꼴 Nunito는 SIL Open Font License 1.1을 따른다. 전문은 [licenses/Nunito-OFL.txt](licenses/Nunito-OFL.txt).

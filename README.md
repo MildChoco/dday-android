@@ -14,6 +14,18 @@
 
 디자인 시안: https://claude.ai/artifact/7VefAz9UBS7bcWxhW6VamP
 
+## 화면
+
+Galaxy S25 Ultra에서 예시 데이터로 캡처했다. 한글은 폰에 설정된 시스템 글꼴을 따른다.
+
+| 홈 | 시간 상세 | 디데이 상세 | 매년 반복 상세 |
+| --- | --- | --- | --- |
+| <img src="docs/screenshots/01-home.png" width="200"> | <img src="docs/screenshots/02-time-detail.png" width="200"> | <img src="docs/screenshots/03-dday-detail.png" width="200"> | <img src="docs/screenshots/04-yearly-detail.png" width="200"> |
+
+| 일수 기념일 상세 | 새로 만들기 | 날짜 선택 |
+| --- | --- | --- |
+| <img src="docs/screenshots/05-anniv-detail.png" width="200"> | <img src="docs/screenshots/06-add-time.png" width="200"> | <img src="docs/screenshots/07-date-picker.png" width="200"> |
+
 ## 빌드와 설치
 
 필요한 것: Android Studio(내장 JDK 사용), Android SDK 37
@@ -23,6 +35,8 @@ $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
 .\gradlew.bat testDebugUnitTest assembleRelease
 adb install -r app\build\outputs\apk\release\app-release.apk
 ```
+
+디버그 빌드는 패키지명이 `com.simple.dday.debug`라서 실제로 쓰는 앱과 따로 설치되고 데이터도 섞이지 않는다.
 
 릴리스 APK는 이 PC의 디버그 키(`~/.android/debug.keystore`)로 서명한다.
 같은 키로 빌드해야 기존 데이터를 유지한 채 덮어쓰기 설치가 된다.

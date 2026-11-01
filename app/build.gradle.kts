@@ -16,6 +16,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            // 실제로 쓰는 릴리스 앱과 데이터가 섞이지 않도록 별도 앱으로 설치된다
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true

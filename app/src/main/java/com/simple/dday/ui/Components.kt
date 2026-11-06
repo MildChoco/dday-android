@@ -3,6 +3,7 @@ package com.simple.dday.ui
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.border
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,15 +52,18 @@ import com.simple.dday.data.Pastel
 import com.simple.dday.logic.Part
 import com.simple.dday.logic.Step
 import com.simple.dday.logic.TimelineItem
+import com.simple.dday.ui.theme.ChipBg
 import com.simple.dday.ui.theme.Divider
 import com.simple.dday.ui.theme.Gray
 import com.simple.dday.ui.theme.Ink
 import com.simple.dday.ui.theme.LabelGray
-import com.simple.dday.ui.theme.ChipBg
 import com.simple.dday.ui.theme.Nunito
+import com.simple.dday.ui.theme.OnPastelInk
+import com.simple.dday.ui.theme.Paper
+import com.simple.dday.ui.theme.SegSelected
 import com.simple.dday.ui.theme.SubOnPastel
+import com.simple.dday.ui.theme.TileSoft
 import com.simple.dday.ui.theme.Track
-import com.simple.dday.ui.theme.White
 import com.simple.dday.ui.theme.bgColor
 import com.simple.dday.ui.theme.inkColor
 import kotlinx.coroutines.delay
@@ -86,7 +90,7 @@ fun Tag(text: String, pastel: Pastel) {
         fontWeight = FontWeight.Bold,
         color = pastel.inkColor,
         modifier = Modifier
-            .background(White.copy(alpha = 0.8f), CircleShape)
+            .background(TileSoft, CircleShape)
             .padding(horizontal = 8.dp, vertical = 3.dp),
     )
 }
@@ -128,6 +132,8 @@ fun EventCard(
     sub: String,
     parts: List<Part>,
     pastel: Pastel,
+    icon: String = "",
+    pinned: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
     val shape = RoundedCornerShape(22.dp)
@@ -142,7 +148,20 @@ fun EventCard(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                if (icon.isNotEmpty()) Text(icon, fontSize = 16.sp)
+                Text(
+                    title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                if (pinned) {
+                    Icon(AppIcons.Pin, contentDescription = "고정됨", tint = pastel.inkColor, modifier = Modifier.size(14.dp))
+                }
+            }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Tag(kindLabel, pastel)
                 Text(sub, fontSize = 13.sp, color = SubOnPastel, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -153,7 +172,7 @@ fun EventCard(
 }
 
 @Composable
-fun PlainIconButton(icon: ImageVector, description: String, onClick: () -> Unit) {
+fun PlainIconButton(icon: ImageVector, description: String, tint: Color = Ink, onClick: () -> Unit) {
     Box(
         Modifier
             .size(44.dp)
@@ -161,7 +180,20 @@ fun PlainIconButton(icon: ImageVector, description: String, onClick: () -> Unit)
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, contentDescription = description, tint = Ink, modifier = Modifier.size(24.dp))
+        Icon(icon, contentDescription = description, tint = tint, modifier = Modifier.size(24.dp))
+    }
+}
+
+/** 가운데 제목과 뒤로 버튼만 있는 위쪽 막대 */
+@Composable
+fun TitleBar(title: String, onBack: () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+    ) {
+        Box(Modifier.align(Alignment.CenterStart)) { PlainIconButton(AppIcons.Back, "뒤로", onClick = onBack) }
+        Text(title, fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Center))
     }
 }
 
@@ -212,16 +244,65 @@ fun ToggleRow(title: String, desc: String, checked: Boolean, accent: Color, onCh
                     .offset(x = knob)
                     .size(26.dp)
                     .shadow(1.dp, CircleShape)
-                    .background(White, CircleShape),
+                    .background(Color.White, CircleShape),
             )
         }
+    }
+}
+
+/** 여러 개 중 하나를 고르는 막대. descs를 주면 이름 아래에 설명이 한 줄 붙는다 */
+@Composable
+fun Segmented(labels: List<String>, selected: Int, descs: List<String> = emptyList(), onSelect: (Int) -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(ChipBg)
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        labels.forEachIndexed { i, label ->
+            val on = i == selected
+            val shape = RoundedCornerShape(12.dp)
+            Column(
+                Modifier
+                    .weight(1f)
+                    .heightIn(min = if (descs.isEmpty()) 44.dp else 56.dp)
+                    .then(if (on) Modifier.shadow(2.dp, shape) else Modifier)
+                    .clip(shape)
+                    .background(if (on) SegSelected else Color.Transparent)
+                    .selectable(selected = on, role = Role.RadioButton, onClick = { onSelect(i) })
+                    .padding(vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(label, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                descs.getOrNull(i)?.let { Text(it, fontSize = 11.sp, color = SubOnPastel) }
+            }
+        }
+    }
+}
+
+/** 화면 너비를 채우는 보조 버튼 */
+@Composable
+fun SoftButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(ChipBg)
+            .clickable(role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = LabelGray)
     }
 }
 
 // ---- 상세 화면 ----
 
 @Composable
-fun Hero(pastel: Pastel, tag: String, title: String, content: @Composable ColumnScope.() -> Unit) {
+fun Hero(pastel: Pastel, tag: String, title: String, icon: String = "", content: @Composable ColumnScope.() -> Unit) {
     Column(
         Modifier
             .padding(start = 20.dp, end = 20.dp, top = 4.dp)
@@ -232,7 +313,14 @@ fun Hero(pastel: Pastel, tag: String, title: String, content: @Composable Column
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Tag(tag, pastel)
-        Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 6.dp))
+        Row(
+            Modifier.padding(top = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (icon.isNotEmpty()) Text(icon, fontSize = 20.sp)
+            Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        }
         content()
     }
 }
@@ -269,7 +357,7 @@ fun HeroSub(text: String) {
     Text(text, fontSize = 14.sp, color = SubOnPastel)
 }
 
-/** 히어로 카드 안의 흰 정보 칸 두 개 */
+/** 히어로 카드 안의 정보 칸 두 개 */
 @Composable
 fun Tiles(vararg tiles: Pair<String, String>) {
     Row(
@@ -285,7 +373,7 @@ fun Tiles(vararg tiles: Pair<String, String>) {
                     .weight(1f)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(White.copy(alpha = 0.8f))
+                    .background(TileSoft)
                     .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
@@ -325,8 +413,8 @@ fun InfoRows(rows: List<Pair<String, String>>) {
 @Composable
 fun Timeline(items: List<TimelineItem>, pastel: Pastel) {
     val ink = pastel.inkColor
-    val soft = lerp(White, ink, 0.15f)
-    val futureDot = lerp(White, ink, 0.3f)
+    val soft = lerp(Paper, ink, 0.15f)
+    val futureDot = lerp(Paper, ink, 0.3f)
     val todayIdx = items.indexOfFirst { it.step == Step.TODAY }
     Column(Modifier.padding(horizontal = 20.dp)) {
         items.forEachIndexed { i, item ->
@@ -356,7 +444,7 @@ fun Timeline(items: List<TimelineItem>, pastel: Pastel) {
                         Modifier
                             .size(12.dp)
                             .clip(CircleShape)
-                            .background(if (past || item.step == Step.TODAY) ink else White)
+                            .background(if (past || item.step == Step.TODAY) ink else Paper)
                             .border(2.dp, if (item.step == Step.FUTURE) futureDot else ink, CircleShape),
                     )
                     Box(
@@ -371,20 +459,25 @@ fun Timeline(items: List<TimelineItem>, pastel: Pastel) {
                         .weight(1f)
                         .padding(vertical = 2.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(if (item.step == Step.TODAY) lerp(White, pastel.bgColor, 0.5f) else Color.Transparent)
+                        .background(if (item.step == Step.TODAY) lerp(Paper, pastel.bgColor, 0.5f) else Color.Transparent)
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                        Text(item.label, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = if (past) Gray else Ink)
+                        // 1000일 단위는 강조색과 큰 글자로 눈에 띄게 한다
+                        Text(
+                            item.label,
+                            fontSize = if (item.highlight) 17.sp else 15.sp,
+                            fontWeight = if (item.highlight) FontWeight.ExtraBold else FontWeight.Bold,
+                            color = if (item.highlight) ink else if (past) Gray else Ink,
+                        )
                         Text(item.date, fontSize = 13.sp, color = Gray)
                     }
                     if (item.right.isNotEmpty()) {
                         val (pillBg, pillFg) = when (item.step) {
-                            Step.NEXT -> ink to White
+                            Step.NEXT, Step.TODAY -> ink to OnPastelInk
                             Step.FUTURE -> ChipBg to LabelGray
-                            Step.TODAY -> ink to White
                             Step.PAST -> Color.Transparent to Gray
                         }
                         Text(

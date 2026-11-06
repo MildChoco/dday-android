@@ -6,20 +6,28 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,6 +36,8 @@ import com.simple.dday.data.AnnivMode
 import com.simple.dday.data.Event
 import com.simple.dday.data.Kind
 import com.simple.dday.data.Pastel
+import com.simple.dday.logic.IcuLunar
+import com.simple.dday.logic.birthdayNumber
 import com.simple.dday.logic.countDays
 import com.simple.dday.logic.countTimeline
 import com.simple.dday.logic.daysBetween
@@ -41,26 +51,40 @@ import com.simple.dday.logic.formatPeriod
 import com.simple.dday.logic.formatTime
 import com.simple.dday.logic.formatWeeks
 import com.simple.dday.logic.milestones
-import com.simple.dday.logic.nextYearly
+import com.simple.dday.logic.nextOccurrence
 import com.simple.dday.logic.secondsUntil
+import com.simple.dday.logic.summarize
 import com.simple.dday.logic.timeTarget
 import com.simple.dday.logic.weekdayShort
+import com.simple.dday.logic.yearlyDateText
 import com.simple.dday.logic.yearlyTimeline
+import com.simple.dday.ui.theme.ChipBg
+import com.simple.dday.ui.theme.Gray
+import com.simple.dday.ui.theme.Ink
 import com.simple.dday.ui.theme.LabelGray
 import com.simple.dday.ui.theme.Nunito
+import com.simple.dday.ui.theme.Paper
 import com.simple.dday.ui.theme.SubOnPastel
-import com.simple.dday.ui.theme.White
+import com.simple.dday.ui.theme.TileStrong
 import com.simple.dday.ui.theme.inkColor
 import java.time.LocalDateTime
 import kotlin.math.abs
 
 @Composable
-fun DetailScreen(event: Event, onBack: () -> Unit, onEdit: () -> Unit) {
+fun DetailScreen(
+    event: Event,
+    onBack: () -> Unit,
+    onEdit: () -> Unit,
+    onSetPinned: (Boolean) -> Unit,
+    onSetArchived: (Boolean) -> Unit,
+) {
     val now = rememberNow()
+    // 다시 돌아오지 않는 날이 지난 항목
+    val past = summarize(event, now).nextAt == null
     Column(
         Modifier
             .fillMaxSize()
-            .background(White)
+            .background(Paper)
             .safeDrawingPadding(),
     ) {
         Row(
@@ -68,9 +92,10 @@ fun DetailScreen(event: Event, onBack: () -> Unit, onEdit: () -> Unit) {
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            PlainIconButton(AppIcons.Back, "뒤로", onBack)
+            PlainIconButton(AppIcons.Back, "뒤로", onClick = onBack)
+            Spacer(Modifier.weight(1f))
+            if (!event.archived) PinToggle(event.pinned, onSetPinned)
             Box(
                 Modifier
                     .height(44.dp)
@@ -93,7 +118,40 @@ fun DetailScreen(event: Event, onBack: () -> Unit, onEdit: () -> Unit) {
                 Kind.ANNIV -> if (event.annivMode == AnnivMode.YEARLY) YearlyDetail(event, now) else CountDetail(event, now)
                 Kind.TIME -> TimeDetail(event, now)
             }
+            if (event.archived) {
+                Column(
+                    Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    SoftButton("목록으로 복구") { onSetArchived(false) }
+                    Text(
+                        "보관함에 있는 항목이에요. 홈 목록에는 보이지 않아요",
+                        fontSize = 12.sp,
+                        color = Gray,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            } else if (past) {
+                SoftButton("보관함으로 보내기", Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp)) { onSetArchived(true) }
+            }
         }
+    }
+}
+
+/** 홈 목록 맨 위에 고정하는 버튼. 고정돼 있으면 바탕을 채워 표시한다 */
+@Composable
+private fun PinToggle(pinned: Boolean, onChange: (Boolean) -> Unit) {
+    Box(
+        Modifier
+            .size(44.dp)
+            .clip(CircleShape)
+            .background(if (pinned) ChipBg else Color.Transparent)
+            .toggleable(value = pinned, role = Role.Switch, onValueChange = onChange)
+            .semantics { contentDescription = "목록 맨 위에 고정" },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(AppIcons.Pin, contentDescription = null, tint = if (pinned) Ink else Gray, modifier = Modifier.size(22.dp))
     }
 }
 
@@ -102,7 +160,7 @@ private fun DdayDetail(e: Event, now: LocalDateTime) {
     val today = now.toLocalDate()
     val left = daysBetween(today, e.date)
     val hours = abs(secondsUntil(now, e.date.atStartOfDay())) / 3600
-    Hero(e.color, "디데이", e.title) {
+    Hero(e.color, "디데이", e.title, e.icon) {
         BigNumber(ddayLabel(left), "", e.color.inkColor)
         HeroSub(formatLong(e.date))
         Tiles(
@@ -125,7 +183,7 @@ private fun CountDetail(e: Event, now: LocalDateTime) {
     val notStarted = e.date.isAfter(today)
     val n = countDays(e.date, today, e.startAsDayOne)
     val next = milestones(e.date, e.startAsDayOne).firstOrNull { !it.date.isBefore(today) }
-    Hero(e.color, "기념일 · 일수", e.title) {
+    Hero(e.color, "기념일 · 일수", e.title, e.icon) {
         if (notStarted) {
             BigNumber(ddayLabel(daysBetween(today, e.date)), "", e.color.inkColor)
         } else {
@@ -144,18 +202,24 @@ private fun CountDetail(e: Event, now: LocalDateTime) {
 @Composable
 private fun YearlyDetail(e: Event, now: LocalDateTime) {
     val today = now.toLocalDate()
-    val next = nextYearly(e.date, today)
-    val nth = next.year - e.date.year
-    Hero(e.color, "기념일 · 매년", e.title) {
-        BigNumber(ddayLabel(daysBetween(today, next)), "", e.color.inkColor)
-        HeroSub(formatMonthDay(e.date, "매년 "))
+    val next = nextOccurrence(e, today, IcuLunar)
+    val left = daysBetween(today, next)
+    val nth = birthdayNumber(e, next)
+    Hero(e.color, "기념일 · 매년", e.title, e.icon) {
+        BigNumber(ddayLabel(left), "", e.color.inkColor)
+        HeroSub("매년 ${yearlyDateText(e)}")
         Tiles(
             "다음 날짜" to formatDot(next),
-            "이번이" to (if (nth > 0) "${nth}번째" else "첫날"),
+            // 태어난 해를 넣은 생일이면 몇 번째인지와 만 나이를 보여준다
+            if (nth != null) {
+                "이번 생일" to "${nth}번째 · 만 ${nth}세"
+            } else {
+                "남은 기간" to (if (left == 0L) "오늘이에요" else formatPeriod(today, next, withDays = true))
+            },
         )
     }
-    SectionHeader("다가오는 날", "매년 반복")
-    Timeline(yearlyTimeline(e.date, today), e.color)
+    SectionHeader("다가오는 날", if (e.lunar) "음력 · 매년 반복" else "매년 반복")
+    Timeline(yearlyTimeline(e, today), e.color)
 }
 
 @Composable
@@ -170,7 +234,7 @@ private fun TimeDetail(e: Event, now: LocalDateTime) {
     } else {
         "${formatMonthDay(e.date)} (${weekdayShort(e.date)}) ${formatTime(e.time)}까지"
     }
-    Hero(e.color, "시간", e.title) {
+    Hero(e.color, "시간", e.title, e.icon) {
         HeroSub(until)
         Row(
             Modifier
@@ -220,7 +284,7 @@ private fun TimeTile(number: String, unit: String, pastel: Pastel, modifier: Mod
     Column(
         modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(White)
+            .background(TileStrong)
             .padding(top = 16.dp, bottom = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),

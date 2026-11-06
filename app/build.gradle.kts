@@ -11,8 +11,9 @@ android {
         applicationId = "com.simple.dday"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -24,7 +25,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // 개인용 설치라 디버그 키로 서명한다. 같은 PC에서 빌드하면 덮어쓰기 설치가 된다.
+            // 빌드하는 PC의 디버그 키로 서명한다. 같은 키로 서명한 APK끼리만 덮어쓰기 설치가 된다.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -48,4 +49,9 @@ dependencies {
     implementation(libs.compose.material3)
 
     testImplementation(libs.junit)
+    testImplementation(libs.json)
+
+    // 기기에 내장된 달력에 의존하는 음력 변환은 기기에서 돌려 확인한다
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.junit)
 }

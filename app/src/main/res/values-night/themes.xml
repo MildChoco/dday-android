@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 앱이 뜨기 전 잠깐 보이는 바탕. 폰이 다크 모드일 때 흰 화면이 번쩍이지 않게 한다 -->
+    <style name="Theme.DDay" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/night_background</item>
+    </style>
+</resources>

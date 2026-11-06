@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 디버그 빌드는 실제로 쓰는 앱과 나란히 설치되므로 이름에 표시를 붙여 구분한다 -->
+    <string name="app_name">디데이 β</string>
+</resources>

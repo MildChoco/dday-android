@@ -3,6 +3,8 @@ package com.simple.dday.logic
 import com.simple.dday.data.AnnivMode
 import com.simple.dday.data.Event
 import com.simple.dday.data.Kind
+import com.simple.dday.data.SortOrder
+import java.text.Collator
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -23,11 +25,18 @@ data class Summary(
     val nextAt: LocalDateTime?,
 )
 
-data class Milestone(val label: String, val date: LocalDate)
+/** major는 1000일 단위처럼 크게 챙기는 기념일 */
+data class Milestone(val label: String, val date: LocalDate, val major: Boolean = false)
 
 enum class Step { PAST, TODAY, NEXT, FUTURE }
 
-data class TimelineItem(val step: Step, val label: String, val date: String, val right: String)
+data class TimelineItem(
+    val step: Step,
+    val label: String,
+    val date: String,
+    val right: String,
+    val highlight: Boolean = false,
+)
 
 fun daysBetween(from: LocalDate, to: LocalDate): Long = ChronoUnit.DAYS.between(from, to)
 
@@ -46,20 +55,49 @@ fun milestoneDate(start: LocalDate, n: Int, dayOne: Boolean): LocalDate =
 
 /** 100일 단위와 N주년을 날짜순으로 */
 fun milestones(start: LocalDate, dayOne: Boolean): List<Milestone> {
-    val days = (100..36_500 step 100).map { Milestone("${it}일", milestoneDate(start, it, dayOne)) }
+    val days = (100..36_500 step 100).map { Milestone("${it}일", milestoneDate(start, it, dayOne), major = it % 1000 == 0) }
     val years = (1..100).map { Milestone("${it}주년", start.plusYears(it.toLong())) }
     return (days + years).sortedBy { it.date }
 }
 
+// ---- 매년 반복 ----
+
 /** 그 해의 같은 월·일. 2월 29일은 평년에 2월 28일이 된다 */
 fun yearlyIn(date: LocalDate, year: Int): LocalDate = date.withYear(year)
 
-/** 매년 돌아오는 날 중 오늘(포함) 이후 가장 가까운 날 */
-fun nextYearly(date: LocalDate, today: LocalDate): LocalDate {
-    if (!date.isBefore(today)) return date
-    val thisYear = yearlyIn(date, today.year)
-    return if (thisYear.isBefore(today)) yearlyIn(date, today.year + 1) else thisYear
-}
+/** 매년 반복 항목이 [year]년에 돌아오는 양력 날짜. 음력이면 음력 [year]년의 날짜를 양력으로 바꾼다 */
+fun occurrenceIn(e: Event, year: Int, lunar: LunarConverter): LocalDate =
+    (if (e.lunar) lunar.toSolar(year, e.lunarMonth, e.lunarDay) else null) ?: yearlyIn(e.date, year)
+
+/** [from](포함) 이후에 돌아오는 날짜를 가까운 순으로 [count]개 */
+fun upcomingOccurrences(e: Event, from: LocalDate, count: Int, lunar: LunarConverter): List<LocalDate> =
+    // 음력 12월은 양력으로 다음 해 1~2월이라 한 해 앞부터 본다
+    (from.year - 1..from.year + count + 1)
+        .map { occurrenceIn(e, it, lunar) }
+        .filter { !it.isBefore(from) }
+        .sorted()
+        .take(count)
+
+fun nextOccurrence(e: Event, today: LocalDate, lunar: LunarConverter): LocalDate =
+    upcomingOccurrences(e, today, 1, lunar).first()
+
+/** [before] 전에 마지막으로 돌아온 날짜 */
+fun previousOccurrence(e: Event, before: LocalDate, lunar: LunarConverter): LocalDate =
+    (before.year - 2..before.year).map { occurrenceIn(e, it, lunar) }.filter { it.isBefore(before) }.max()
+
+/** 태어난 해가 있으면 그 날이 몇 번째 생일(=만 나이)인지. 태어난 해가 없거나 태어나기 전이면 null */
+fun birthdayNumber(e: Event, occurrence: LocalDate): Int? =
+    e.birthYear?.let { occurrence.year - it }?.takeIf { it > 0 }
+
+/** 타임라인에 쓰는 이름. 태어난 해가 있으면 "59번째 생일", 없으면 "2027년" */
+fun occurrenceLabel(e: Event, occurrence: LocalDate): String =
+    birthdayNumber(e, occurrence)?.let { "${it}번째 생일" } ?: "${occurrence.year}년"
+
+/** "1월 15일" 또는 "음력 8월 15일" */
+fun yearlyDateText(e: Event): String =
+    if (e.lunar) "음력 ${e.lunarMonth}월 ${e.lunarDay}일" else formatMonthDay(e.date)
+
+// ---- 시간 ----
 
 /** 시간 카테고리의 목표 시각. 매일 반복이면 지금 이후 가장 가까운 그 시각 */
 fun timeTarget(e: Event, now: LocalDateTime): LocalDateTime {
@@ -81,7 +119,9 @@ fun hmParts(totalSeconds: Long): List<Part> {
     }
 }
 
-fun summarize(e: Event, now: LocalDateTime): Summary {
+// ---- 목록 ----
+
+fun summarize(e: Event, now: LocalDateTime, lunar: LunarConverter = IcuLunar): Summary {
     val today = now.toLocalDate()
     return when (e.kind) {
         Kind.DDAY -> {
@@ -91,8 +131,8 @@ fun summarize(e: Event, now: LocalDateTime): Summary {
 
         Kind.ANNIV -> when {
             e.annivMode == AnnivMode.YEARLY -> {
-                val next = nextYearly(e.date, today)
-                Summary(listOf(Part(ddayLabel(daysBetween(today, next)))), formatMonthDay(e.date, "매년 "), next.atStartOfDay())
+                val next = nextOccurrence(e, today, lunar)
+                Summary(listOf(Part(ddayLabel(daysBetween(today, next)))), "매년 ${yearlyDateText(e)}", next.atStartOfDay())
             }
 
             e.date.isAfter(today) ->
@@ -124,6 +164,24 @@ fun summarize(e: Event, now: LocalDateTime): Summary {
     }
 }
 
+/** 홈 목록 순서. 고정한 항목이 항상 먼저 오고, 그 안에서 [order]를 따른다 */
+fun sortForHome(items: List<Pair<Event, Summary>>, order: SortOrder): List<Pair<Event, Summary>> {
+    val byOrder: Comparator<Pair<Event, Summary>> = when (order) {
+        SortOrder.NEAREST -> compareBy<Pair<Event, Summary>> { it.second.nextAt == null }
+            .thenBy { it.second.nextAt }
+            .thenBy { it.first.id }
+
+        // 번호는 만든 순서대로 커진다. 최근에 만든 것이 위로
+        SortOrder.CREATED -> compareByDescending<Pair<Event, Summary>> { it.first.id }
+
+        SortOrder.NAME -> compareBy<Pair<Event, Summary>, String>(Collator.getInstance(Locale.KOREAN)) { it.first.title }
+            .thenBy { it.first.id }
+    }
+    return items.sortedWith(compareByDescending<Pair<Event, Summary>> { it.first.pinned }.then(byOrder))
+}
+
+// ---- 타임라인 ----
+
 /** 일수 기념일 타임라인: 지난 기념일 2개, 오늘, 다가오는 기념일 5개 */
 fun countTimeline(start: LocalDate, dayOne: Boolean, today: LocalDate): List<TimelineItem> {
     val all = milestones(start, dayOne)
@@ -137,39 +195,45 @@ fun countTimeline(start: LocalDate, dayOne: Boolean, today: LocalDate): List<Tim
         else -> "${n}일"
     }
     val todayLabel = if (todays.isEmpty()) "오늘" else "오늘 · " + todays.joinToString(" · ") { it.label }
-    return past.map { TimelineItem(Step.PAST, it.label, formatDot(it.date), "지남") } +
-        TimelineItem(Step.TODAY, todayLabel, "$countText · ${formatDot(today)}", if (todays.isEmpty()) "" else "D-Day") +
+    return past.map { TimelineItem(Step.PAST, it.label, formatDot(it.date), "지남", it.major) } +
+        TimelineItem(
+            Step.TODAY,
+            todayLabel,
+            "$countText · ${formatDot(today)}",
+            if (todays.isEmpty()) "" else "D-Day",
+            todays.any { it.major },
+        ) +
         future.mapIndexed { i, m ->
-            TimelineItem(if (i == 0) Step.NEXT else Step.FUTURE, m.label, formatDot(m.date), ddayLabel(daysBetween(today, m.date)))
+            TimelineItem(
+                if (i == 0) Step.NEXT else Step.FUTURE,
+                m.label,
+                formatDot(m.date),
+                ddayLabel(daysBetween(today, m.date)),
+                m.major,
+            )
         }
 }
 
 /** 매년 반복 기념일 타임라인: 지난번, 오늘, 앞으로 5번 */
-fun yearlyTimeline(date: LocalDate, today: LocalDate): List<TimelineItem> {
-    val next = nextYearly(date, today)
-    val items = mutableListOf<TimelineItem>()
-    if (next.year - 1 >= date.year) {
-        val prev = yearlyIn(date, next.year - 1)
-        if (prev.isBefore(today)) items += TimelineItem(Step.PAST, nthLabel(date, prev), formatDot(prev), "지남")
-    }
-    val first = if (next == today) {
-        items += TimelineItem(Step.TODAY, "오늘 · " + nthLabel(date, next), formatDot(today), "D-Day")
-        1
+fun yearlyTimeline(e: Event, today: LocalDate, lunar: LunarConverter = IcuLunar): List<TimelineItem> {
+    val upcoming = upcomingOccurrences(e, today, 6, lunar)
+    val isToday = upcoming.first() == today
+    val prev = previousOccurrence(e, today, lunar)
+    val items = mutableListOf(TimelineItem(Step.PAST, occurrenceLabel(e, prev), formatDot(prev), "지남"))
+    items += if (isToday) {
+        TimelineItem(Step.TODAY, "오늘 · " + occurrenceLabel(e, today), formatDot(today), "D-Day")
     } else {
-        items += TimelineItem(Step.TODAY, "오늘", formatDot(today), "")
-        0
+        TimelineItem(Step.TODAY, "오늘", formatDot(today), "")
     }
-    (first until first + 5).forEachIndexed { i, k ->
-        val d = yearlyIn(date, next.year + k)
-        items += TimelineItem(if (i == 0) Step.NEXT else Step.FUTURE, nthLabel(date, d), formatDot(d), ddayLabel(daysBetween(today, d)))
+    upcoming.drop(if (isToday) 1 else 0).take(5).forEachIndexed { i, d ->
+        items += TimelineItem(
+            if (i == 0) Step.NEXT else Step.FUTURE,
+            occurrenceLabel(e, d),
+            formatDot(d),
+            ddayLabel(daysBetween(today, d)),
+        )
     }
     return items
-}
-
-/** 기준일로부터 몇 번째 맞는 날인지. 기준일 당일은 "첫날" */
-fun nthLabel(origin: LocalDate, occurrence: LocalDate): String {
-    val n = occurrence.year - origin.year
-    return if (n > 0) "${n}번째" else "첫날"
 }
 
 // ---- 표시 형식 ----

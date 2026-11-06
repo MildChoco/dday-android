@@ -249,7 +249,7 @@ private fun EmptyState(noneAtAll: Boolean, archivedCount: Int, onArchive: () -> 
             fontWeight = FontWeight.Bold,
         )
         Text(
-            "오른쪽 위 + 버튼으로 디데이, 기념일, 시간을 추가해 보세요",
+            "오른쪽 위 + 버튼으로 디데이, 기념일, 시간을 추가해 보세요".keepWords(),
             fontSize = 13.sp,
             color = Gray,
             textAlign = TextAlign.Center,

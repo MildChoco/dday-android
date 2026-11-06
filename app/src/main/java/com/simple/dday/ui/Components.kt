@@ -212,6 +212,18 @@ fun SectionLabel(text: String) {
     Text(text, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = LabelGray)
 }
 
+/** 입력칸이나 설정 아래에 붙는 작은 안내 글 */
+@Composable
+fun Hint(text: String) {
+    Text(text.keepWords(), fontSize = 12.sp, color = Gray)
+}
+
+/**
+ * 한글이 낱말 중간에서 줄바꿈되지 않게 한다.
+ * 글자 사이에 줄바꿈을 막는 보이지 않는 문자(U+2060)를 끼워, 띄어 쓴 곳에서만 줄이 바뀐다.
+ */
+fun String.keepWords(): String = split(' ').joinToString(" ") { word -> word.asIterable().joinToString("\u2060") }
+
 @Composable
 fun SectionHeader(title: String, hint: String) {
     Row(
@@ -239,7 +251,7 @@ fun ToggleRow(title: String, desc: String, checked: Boolean, accent: Color, onCh
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium)
-            Text(desc, fontSize = 12.sp, color = Gray)
+            Text(desc.keepWords(), fontSize = 12.sp, color = Gray)
         }
         Spacer(Modifier.width(12.dp))
         Box(

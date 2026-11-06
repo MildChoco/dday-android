@@ -1,5 +1,7 @@
 # 디데이
 
+**[APK 내려받기](../../releases/latest/download/dday.apk)** · 최신 버전 · Android 8.0 이상
+
 A simple, ad-free D-day, anniversary and countdown app for Android. Free and open source. The app itself is in Korean.
 
 광고 없는 디데이·기념일·시간 카운트다운 안드로이드 앱입니다. 무료이고 소스가 공개돼 있습니다.
@@ -19,9 +21,25 @@ A simple, ad-free D-day, anniversary and countdown app for Android. Free and ope
 
 ## 설치
 
-[Releases](../../releases)에서 최신 `app-release.apk`를 내려받아 설치합니다. Android 8.0 이상에서 동작합니다.
+맨 위의 **APK 내려받기**를 누르거나 [Releases](../../releases)에서 `dday.apk`를 받아 설치합니다. Android 8.0 이상에 설치할 수 있습니다.
 
-스토어를 거치지 않는 설치라서, 처음 설치할 때 폰이 "출처를 알 수 없는 앱" 허용을 묻습니다.
+스토어를 거치지 않는 설치라서, 처음 설치할 때 폰이 "출처를 알 수 없는 앱" 허용을 묻습니다. 새 버전이 나오면 같은 방법으로 받아 덮어 설치하면 되고, 앱의 설정 > 새 버전 받기에서도 이 페이지를 열 수 있습니다.
+
+## 확인한 기기
+
+1.1 버전을 아래 조건에서 확인했습니다. 조건마다 음력 변환 테스트를 돌리고, 홈·상세·편집·설정 화면과 다크 모드가 깨지지 않는지, 새 항목이 저장되는지 봤습니다.
+
+| 기기 | 화면 | Android | 방법 |
+| --- | --- | --- | --- |
+| Small Phone (4.65형) | 720×1280 · 360×640dp | 13 | 에뮬레이터 |
+| Small Phone, 글자 크기 1.3배 | 720×1280 · 360×640dp | 13 | 에뮬레이터 |
+| Pixel 4a | 1080×2340 · 393×851dp | 14 | 에뮬레이터 |
+| Pixel 9 Pro XL | 1344×2992 · 448×997dp | 16 | 에뮬레이터 |
+| Medium Phone (6.4형) | 1080×2400 · 411×914dp | 17 | 에뮬레이터 |
+| Galaxy S25 Ultra | 1080×2340 | 17 | 실제 기기 |
+
+- Android 8~12와 15, 태블릿과 폴더블은 확인하지 못했습니다.
+- 작은 화면에서 글자를 크게 설정하면 카드의 보조 글이 말줄임표(…)로 줄어들 수 있습니다.
 
 ## 기능
 
@@ -74,6 +92,10 @@ adb install -r app\build\outputs\apk\release\app-release.apk
 | `docs/design/mockup.html` | 첫 버전의 디자인 시안. 내려받아 브라우저로 열면 보입니다 |
 
 버전: AGP 9.4.1, Kotlin 2.4.21(AGP 내장), Gradle 9.8.1, Compose BOM 2026.09.00, minSdk 26.
+
+## 만든 사람
+
+MildChoco · <https://mildchoco.tistory.com/>
 
 ## 라이선스
 

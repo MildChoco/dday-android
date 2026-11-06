@@ -5,9 +5,10 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 enum class Kind(val label: String, val desc: String) {
-    DDAY("디데이", "그날까지 남은 날"),
-    ANNIV("기념일", "지난 날 세기 · 매년 반복"),
-    TIME("시간", "남은 시간 카운트다운"),
+    // 설명은 좁은 칸에서 두 줄로 보이도록 줄바꿈 자리를 정해 둔다
+    DDAY("디데이", "그날까지\n남은 날"),
+    ANNIV("기념일", "지난 날 세기\n매년 반복"),
+    TIME("시간", "남은 시간\n카운트다운"),
 }
 
 /** 기념일을 세는 방식: 100일 단위로 세기, 또는 매년 같은 날 반복 */

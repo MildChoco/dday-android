@@ -8,5 +8,6 @@ object Links {
     /** 새 버전의 설치 파일을 받는 곳 */
     const val RELEASES = "$GITHUB/releases"
 
-    const val HOMEPAGE = ""
+    /** 만든 사람의 홈페이지 */
+    const val HOMEPAGE = "https://mildchoco.tistory.com/"
 }

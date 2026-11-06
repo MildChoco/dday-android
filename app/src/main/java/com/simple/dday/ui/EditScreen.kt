@@ -258,14 +258,14 @@ fun EditScreen(
                         DropdownField("${lunarDay}일", (1..30).map { "${it}일" }, Modifier.weight(1f)) { lunarDay = it + 1 }
                     }
                     val next = nextOccurrence(draft, now.toLocalDate(), IcuLunar)
-                    Text("다음은 양력 ${formatLong(next)}이에요. 윤달은 평달로 세요", fontSize = 12.sp, color = Gray)
+                    Hint("다음은 양력 ${formatLong(next)}이에요. 윤달은 평달로 세요")
                 }
             } else if (!(isTime && daily)) {
                 Group {
                     SectionLabel(dateLabel)
                     PickerField(formatLong(date), AppIcons.Calendar) { dialog = "date" }
                     if (isYearly) {
-                        Text("${formatMonthDay(date, "매년 ")}이 다가오면 다시 세요", fontSize = 12.sp, color = Gray)
+                        Hint("${formatMonthDay(date, "매년 ")}이 다가오면 다시 세요")
                     }
                 }
             }
@@ -281,7 +281,7 @@ fun EditScreen(
                         cursor = accent,
                         numeric = true,
                     )
-                    Text("생일이라면 입력해 보세요. 몇 번째 생일인지와 만 나이를 보여줘요", fontSize = 12.sp, color = Gray)
+                    Hint("생일이라면 입력해 보세요. 몇 번째 생일인지와 만 나이를 보여줘요")
                 }
             }
 
@@ -329,7 +329,7 @@ fun EditScreen(
             onDismissRequest = { dialog = null },
             containerColor = DialogBg,
             title = { Text("삭제할까요?", fontSize = 18.sp, fontWeight = FontWeight.Bold) },
-            text = { Text("‘${initial?.title}’ 항목을 지우면 되돌릴 수 없어요.", fontSize = 14.sp, color = Gray) },
+            text = { Text("‘${initial?.title}’ 항목을 지우면 되돌릴 수 없어요.".keepWords(), fontSize = 14.sp, color = Gray) },
             confirmButton = {
                 TextButton(onClick = { dialog = null; onDelete() }) {
                     Text("삭제", color = Pastel.PINK.inkColor, fontWeight = FontWeight.Bold)
@@ -363,7 +363,7 @@ private fun CategoryCard(kind: Kind, selected: Boolean, modifier: Modifier, onCl
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(kind.label, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Text(kind.desc, fontSize = 12.sp, color = SubOnPastel)
+        Text(kind.desc.keepWords(), fontSize = 12.sp, color = SubOnPastel)
     }
 }
 

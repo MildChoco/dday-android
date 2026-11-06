@@ -125,7 +125,7 @@ fun DetailScreen(
                 ) {
                     SoftButton("목록으로 복구") { onSetArchived(false) }
                     Text(
-                        "보관함에 있는 항목이에요. 홈 목록에는 보이지 않아요",
+                        "보관함에 있는 항목이에요. 홈 목록에는 보이지 않아요".keepWords(),
                         fontSize = 12.sp,
                         color = Gray,
                         textAlign = TextAlign.Center,

@@ -149,7 +149,7 @@ private fun Block(title: String, content: @Composable () -> Unit) {
 
 @Composable
 private fun Note(text: String) {
-    Text(text, fontSize = 12.sp, color = Gray)
+    Hint(text)
 }
 
 /** 설정의 한 줄. onClick이 없으면 값만 보여주는 줄이다 */
@@ -167,7 +167,7 @@ private fun LinkRow(title: String, desc: String? = null, trailing: String? = nul
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                if (desc != null) Text(desc, fontSize = 12.sp, color = Gray)
+                if (desc != null) Text(desc.keepWords(), fontSize = 12.sp, color = Gray)
             }
             if (trailing != null) Text(trailing, fontSize = 14.sp, color = Gray)
             if (onClick != null) Icon(AppIcons.Forward, contentDescription = null, tint = Gray, modifier = Modifier.size(18.dp))
@@ -198,7 +198,7 @@ fun ArchiveScreen(events: List<Event>, onBack: () -> Unit, onOpen: (Event) -> Un
             ) {
                 Text("보관함이 비어 있어요", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    "지난 디데이는 상세 화면에서 보관함으로 보낼 수 있어요",
+                    "지난 디데이는 상세 화면에서 보관함으로 보낼 수 있어요".keepWords(),
                     fontSize = 13.sp,
                     color = Gray,
                     textAlign = TextAlign.Center,

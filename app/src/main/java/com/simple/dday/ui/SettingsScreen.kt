@@ -1,5 +1,7 @@
 package com.simple.dday.ui
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +36,7 @@ import com.simple.dday.data.Event
 import com.simple.dday.data.EventStore
 import com.simple.dday.data.Settings
 import com.simple.dday.data.SortOrder
+import com.simple.dday.data.Support
 import com.simple.dday.data.ThemeMode
 import com.simple.dday.logic.summarize
 import com.simple.dday.ui.theme.Divider
@@ -85,6 +88,21 @@ fun SettingsScreen(
 
             Block("정리") {
                 LinkRow("보관함", "홈 목록에서 숨긴 항목", trailing = "${archivedCount}개", onClick = onOpenArchive)
+            }
+
+            // 후원 받는 곳이 정해져 있을 때만 보인다. 누르면 브라우저나 해당 앱이 열린다
+            val supportLinks = Support.links
+            if (supportLinks.isNotEmpty()) {
+                Block("응원하기") {
+                    Column {
+                        supportLinks.forEach { (name, url) ->
+                            LinkRow(name) {
+                                runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                            }
+                        }
+                    }
+                    Note("이 앱은 무료이고 광고가 없어요. 도움이 됐다면 응원을 보내 주세요")
+                }
             }
 
             Block("정보") {

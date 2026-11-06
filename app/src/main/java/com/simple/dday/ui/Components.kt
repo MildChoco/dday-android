@@ -24,6 +24,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -38,10 +40,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
@@ -54,12 +61,15 @@ import com.simple.dday.logic.Step
 import com.simple.dday.logic.TimelineItem
 import com.simple.dday.ui.theme.ChipBg
 import com.simple.dday.ui.theme.Divider
+import com.simple.dday.ui.theme.FieldBg
+import com.simple.dday.ui.theme.FieldBorder
 import com.simple.dday.ui.theme.Gray
 import com.simple.dday.ui.theme.Ink
 import com.simple.dday.ui.theme.LabelGray
 import com.simple.dday.ui.theme.Nunito
 import com.simple.dday.ui.theme.OnPastelInk
 import com.simple.dday.ui.theme.Paper
+import com.simple.dday.ui.theme.Placeholder
 import com.simple.dday.ui.theme.SegSelected
 import com.simple.dday.ui.theme.SubOnPastel
 import com.simple.dday.ui.theme.TileSoft
@@ -296,6 +306,54 @@ fun SoftButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit)
         contentAlignment = Alignment.Center,
     ) {
         Text(text, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = LabelGray)
+    }
+}
+
+/** 입력칸과 고르는 칸이 함께 쓰는 테두리 상자 */
+@Composable
+fun FieldBox(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
+    val shape = RoundedCornerShape(14.dp)
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clip(shape)
+            .background(FieldBg)
+            .border(1.5.dp, FieldBorder, shape)
+            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        content()
+    }
+}
+
+/** 한 줄 글자 입력칸. description은 화면 낭독기가 읽는 이름이다 */
+@Composable
+fun TextInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    description: String,
+    cursor: Color,
+    numeric: Boolean = false,
+) {
+    FieldBox(Modifier.semantics { contentDescription = description }) {
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            textStyle = TextStyle(fontSize = 16.sp, color = Ink),
+            cursorBrush = SolidColor(cursor),
+            keyboardOptions = if (numeric) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions.Default,
+            modifier = Modifier.fillMaxWidth(),
+            decorationBox = { inner ->
+                Box(contentAlignment = Alignment.CenterStart) {
+                    if (value.isEmpty()) Text(placeholder, fontSize = 16.sp, color = Placeholder)
+                    inner()
+                }
+            },
+        )
     }
 }
 

@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.simple.dday.R
 import com.simple.dday.data.Event
 import com.simple.dday.data.EventStore
+import com.simple.dday.data.Pastel
 import com.simple.dday.data.Settings
 import com.simple.dday.data.SortOrder
 import com.simple.dday.data.Support
@@ -42,6 +43,7 @@ import com.simple.dday.logic.summarize
 import com.simple.dday.ui.theme.Divider
 import com.simple.dday.ui.theme.Gray
 import com.simple.dday.ui.theme.Paper
+import com.simple.dday.ui.theme.inkColor
 
 @Composable
 fun SettingsScreen(
@@ -76,6 +78,17 @@ fun SettingsScreen(
                     labels = ThemeMode.entries.map { it.label },
                     selected = settings.themeMode.ordinal,
                 ) { settings.setTheme(ThemeMode.entries[it]) }
+            }
+
+            Block("홈 화면 제목") {
+                TextInput(
+                    value = settings.homeTitle,
+                    onValueChange = { settings.changeHomeTitle(it.take(20)) },
+                    placeholder = "예: 나의 디데이",
+                    description = "홈 화면 제목",
+                    cursor = Pastel.LAVENDER.inkColor,
+                )
+                Note("비워 두면 오늘 날짜가 제목 자리에 보여요")
             }
 
             Block("목록 정렬") {

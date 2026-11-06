@@ -27,6 +27,15 @@ class Settings(context: Context) {
     var sortOrder: SortOrder by mutableStateOf(read(KEY_SORT, SortOrder.NEAREST))
         private set
 
+    /** 홈 화면 맨 위에 보여줄 제목. 비어 있으면 오늘 날짜가 그 자리에 온다 */
+    var homeTitle: String by mutableStateOf(prefs.getString(KEY_TITLE, "") ?: "")
+        private set
+
+    fun changeHomeTitle(text: String) {
+        homeTitle = text
+        prefs.edit().putString(KEY_TITLE, text).apply()
+    }
+
     fun setTheme(mode: ThemeMode) {
         themeMode = mode
         prefs.edit().putString(KEY_THEME, mode.name).apply()
@@ -43,5 +52,6 @@ class Settings(context: Context) {
     private companion object {
         const val KEY_THEME = "theme"
         const val KEY_SORT = "sort"
+        const val KEY_TITLE = "homeTitle"
     }
 }

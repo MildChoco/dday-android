@@ -21,8 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
@@ -48,14 +46,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simple.dday.data.AnnivMode
@@ -73,15 +68,12 @@ import com.simple.dday.logic.summarize
 import com.simple.dday.ui.theme.Accent
 import com.simple.dday.ui.theme.ChipBg
 import com.simple.dday.ui.theme.DialogBg
-import com.simple.dday.ui.theme.FieldBg
-import com.simple.dday.ui.theme.FieldBorder
 import com.simple.dday.ui.theme.Gray
 import com.simple.dday.ui.theme.Ink
 import com.simple.dday.ui.theme.Line
 import com.simple.dday.ui.theme.OnAccent
 import com.simple.dday.ui.theme.OnPastelInk
 import com.simple.dday.ui.theme.Paper
-import com.simple.dday.ui.theme.Placeholder
 import com.simple.dday.ui.theme.SubOnPastel
 import com.simple.dday.ui.theme.Track
 import com.simple.dday.ui.theme.bgColor
@@ -218,22 +210,13 @@ fun EditScreen(
 
             Group {
                 SectionLabel("이름")
-                FieldBox(Modifier.semantics { contentDescription = "이름" }) {
-                    BasicTextField(
-                        value = title,
-                        onValueChange = { title = it.take(40) },
-                        singleLine = true,
-                        textStyle = TextStyle(fontSize = 16.sp, color = Ink),
-                        cursorBrush = SolidColor(accent),
-                        modifier = Modifier.fillMaxWidth(),
-                        decorationBox = { inner ->
-                            Box(contentAlignment = Alignment.CenterStart) {
-                                if (title.isEmpty()) Text(placeholder, fontSize = 16.sp, color = Placeholder)
-                                inner()
-                            }
-                        },
-                    )
-                }
+                TextInput(
+                    value = title,
+                    onValueChange = { title = it.take(40) },
+                    placeholder = placeholder,
+                    description = "이름",
+                    cursor = accent,
+                )
             }
 
             Group {
@@ -290,23 +273,14 @@ fun EditScreen(
             if (isYearly) {
                 Group {
                     SectionLabel("태어난 해 (선택)")
-                    FieldBox(Modifier.semantics { contentDescription = "태어난 해" }) {
-                        BasicTextField(
-                            value = birthYear,
-                            onValueChange = { v -> birthYear = v.filter(Char::isDigit).take(4) },
-                            singleLine = true,
-                            textStyle = TextStyle(fontSize = 16.sp, color = Ink),
-                            cursorBrush = SolidColor(accent),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth(),
-                            decorationBox = { inner ->
-                                Box(contentAlignment = Alignment.CenterStart) {
-                                    if (birthYear.isEmpty()) Text("예: 1990", fontSize = 16.sp, color = Placeholder)
-                                    inner()
-                                }
-                            },
-                        )
-                    }
+                    TextInput(
+                        value = birthYear,
+                        onValueChange = { v -> birthYear = v.filter(Char::isDigit).take(4) },
+                        placeholder = "예: 1990",
+                        description = "태어난 해",
+                        cursor = accent,
+                        numeric = true,
+                    )
                     Text("생일이라면 입력해 보세요. 몇 번째 생일인지와 만 나이를 보여줘요", fontSize = 12.sp, color = Gray)
                 }
             }
@@ -390,24 +364,6 @@ private fun CategoryCard(kind: Kind, selected: Boolean, modifier: Modifier, onCl
     ) {
         Text(kind.label, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         Text(kind.desc, fontSize = 12.sp, color = SubOnPastel)
-    }
-}
-
-@Composable
-private fun FieldBox(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
-    val shape = RoundedCornerShape(14.dp)
-    Box(
-        modifier
-            .fillMaxWidth()
-            .height(52.dp)
-            .clip(shape)
-            .background(FieldBg)
-            .border(1.5.dp, FieldBorder, shape)
-            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.CenterStart,
-    ) {
-        content()
     }
 }
 

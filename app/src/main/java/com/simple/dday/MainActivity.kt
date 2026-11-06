@@ -88,6 +88,7 @@ private fun App(store: EventStore, settings: Settings) {
         when {
             route == HOME -> HomeScreen(
                 events = store.events,
+                title = settings.homeTitle,
                 sortOrder = settings.sortOrder,
                 onSort = settings::setSort,
                 onAdd = { push(EDIT_NEW) },

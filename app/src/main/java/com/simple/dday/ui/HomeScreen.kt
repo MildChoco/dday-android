@@ -59,6 +59,7 @@ import com.simple.dday.ui.theme.Paper
 @Composable
 fun HomeScreen(
     events: List<Event>,
+    title: String,
     sortOrder: SortOrder,
     onSort: (SortOrder) -> Unit,
     onAdd: () -> Unit,
@@ -89,8 +90,14 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("${formatMonthDay(today)} ${weekdayFull(today)}", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Gray)
-                Text("나의 디데이", fontSize = 26.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.5).sp)
+                val dateText = "${formatMonthDay(today)} ${weekdayFull(today)}"
+                if (title.isBlank()) {
+                    // 제목을 정하지 않았으면 오늘 날짜가 제목 자리에 온다
+                    Text(dateText, fontSize = 26.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.5).sp)
+                } else {
+                    Text(dateText, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Gray)
+                    Text(title, fontSize = 26.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.5).sp, maxLines = 1)
+                }
             }
             Box(Modifier.height(48.dp), contentAlignment = Alignment.Center) {
                 PlainIconButton(AppIcons.Settings, "설정", tint = LabelGray, onClick = onSettings)

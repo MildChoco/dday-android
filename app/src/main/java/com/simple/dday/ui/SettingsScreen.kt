@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.simple.dday.R
 import com.simple.dday.data.Event
 import com.simple.dday.data.EventStore
+import com.simple.dday.data.Links
 import com.simple.dday.data.Pastel
 import com.simple.dday.data.Settings
 import com.simple.dday.data.SortOrder
@@ -58,6 +59,11 @@ fun SettingsScreen(
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: "-"
     }
     val archivedCount = store.events.count { it.archived }
+
+    /** 주소를 브라우저나 그 주소를 맡는 앱으로 연다 */
+    fun open(url: String) {
+        runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+    }
 
     Column(
         Modifier
@@ -109,9 +115,7 @@ fun SettingsScreen(
                 Block("응원하기") {
                     Column {
                         supportLinks.forEach { (name, url) ->
-                            LinkRow(name) {
-                                runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-                            }
+                            LinkRow(name) { open(url) }
                         }
                     }
                     Note("이 앱은 무료이고 광고가 없어요. 도움이 됐다면 응원을 보내 주세요")
@@ -120,6 +124,13 @@ fun SettingsScreen(
 
             Block("정보") {
                 Column {
+                    // 스토어를 거치지 않는 앱이라 새 버전은 사용자가 직접 받아야 한다
+                    if (Links.GITHUB.isNotBlank()) {
+                        LinkRow("새 버전 받기", "GitHub에서 설치 파일과 소스 코드를 받을 수 있어요") { open(Links.RELEASES) }
+                    }
+                    if (Links.HOMEPAGE.isNotBlank()) {
+                        LinkRow("홈페이지") { open(Links.HOMEPAGE) }
+                    }
                     LinkRow("오픈소스 라이선스", onClick = onOpenLicenses)
                     LinkRow("버전", trailing = version)
                 }

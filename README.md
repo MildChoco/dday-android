@@ -36,6 +36,15 @@ A simple, ad-free D-day, anniversary and countdown app for Android. Free and ope
 
 알림, 홈 화면 위젯, 파일 백업은 없습니다. 폰의 Google 백업이 켜져 있으면 데이터가 함께 백업됩니다.
 
+## 후원
+
+이 앱은 무료이고 광고가 없습니다. 도움이 됐다면 커피 한 잔 값으로 응원해 주세요.
+
+- 카카오페이: <https://qr.kakaopay.com/Ej7szdxVo> (폰에서 누르면 카카오페이가 열립니다)
+- 앱에서는 설정의 "응원하기"에서 보낼 수 있습니다.
+
+<img src="docs/kakaopay-qr.png" width="180" alt="카카오페이 송금 QR 코드">
+
 ## 직접 빌드하기
 
 필요한 것은 Android Studio(내장 JDK 사용)와 Android SDK 37입니다.

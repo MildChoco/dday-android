@@ -3,7 +3,7 @@ package com.simple.dday.data
 /** 후원 받는 곳. 주소를 비워 두면 설정 화면에 그 줄이 나오지 않는다 */
 object Support {
     /** 카카오페이 송금 링크 (https://qr.kakaopay.com/…) */
-    const val KAKAOPAY = ""
+    const val KAKAOPAY = "https://qr.kakaopay.com/Ej7szdxVo"
 
     /** GitHub Sponsors 페이지 (https://github.com/sponsors/…) */
     const val GITHUB_SPONSORS = ""
